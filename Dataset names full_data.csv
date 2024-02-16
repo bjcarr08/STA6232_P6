@@ -1,0 +1,189 @@
+﻿Variable Name,Label
+abi,Ankle Brachial Index
+activeIndex,Active Living Index
+adiponectin,Concentration of adiponectin (Plasma ng/mL)
+Afib,Atrial Fibrillation
+Aflutter,Atrial Flutter
+age,Age in Years
+ageIneligible,Outside of Original Target Enrollment Age
+AlbuminU24hr,24-hour urine albumin (mg/24hr)
+AlbuminUSpot,Random spot urine albumin (mg/dL)
+alc,Alcohol drinking in the past 12 months (Y/N)
+alcw,Average number of drinks per week in the past 12 months
+ALDOSTERONE,Concentration of Aldosterone (Plasma ng/dL)
+antiArythMeds,Antiarrhythmic Medication Status (Y/N)
+antiArythMedsSelf,Self-Reported Antiarrhythmic Medication Status (Y/N)
+ARIC,Shared-ARIC / JHS-Only
+asthma,Physician-Diagnosed Asthma
+betaBlkMeds,Beta Blocker Medication Status (Y/N)
+BMI,Body Mass Index (kg/m^2)
+BMI3cat,AHA BMI Categorization
+BP3cat,AHA BP Categorization
+BPjnc7,JNC 7 BP Classification
+BPmeds,Blood Pressure Medication Status (Y/N)
+BPmedsSelf,Self-Reported BP Medication Status (Y/N)
+brthmo,Month of Birth
+brthyr,Year of Birth
+bsa,Calculated Body Surface Area (m^2)
+calBlkMeds,Calcium Channel Blocker Medication Status (Y/N)
+CardiacProcHx,Self-Reported history of Cardiac Procedures
+CarotidAngioHx,Self-Reported history of Carotid Angioplasty
+CHDHx,Coronary Heart Disease Status/History
+CKDHx,Chronic Kidney Disease History
+ConductionDefect,Conduction Defect
+CreatinineU24hr,24-hour urine creatinine (g/24hr)
+CreatinineUSpot,Random spot urine creatinine (mg/dL)
+currentSmoker,Indication of participant's current cigarette smoking status
+CV,Cornell Voltage (microvolts)
+CVDHx,Cardiovascular Disease History
+DaysFromV1,Days from Visit 1
+dbp,Diastolic Blood Pressure (mmHg)
+depression,Total Depressive Symptoms Score
+diab3cat,Diabetes Categorization
+Diabetes,Diabetes Status (ADA 2010)
+DialysisDuration,Duration on dialysis (years)
+DialysisEver,Self-reported dialysis
+DiastLVdia,Diastolic LV Diameter (mm)
+diureticMeds,Diuretic Medication Status (Y/N)
+dizzynessEver,History of Dizziness
+DMmeds,Diabetic Medication Status (Y/N)
+DMmedsIns,Diabetic Insulin Medication Status (Y/N)
+DMmedsOral,Diabetic Oral Medication Status (Y/N)
+dmMedsSelf,Self-Reported Diabetic Medication Status (Y/N)
+DMMedType,Type of Diabetic Medication
+doubleVisionEver,History of Double Vision
+ecgHR,Heart Rate (bpm)
+edu3cat,Education Attainment Categorization
+EF,Ejection Fraction
+EF3cat,Ejection Fraction Categorization
+eGFRckdepi,eGFR CKD-Epi
+eGFRmdrd,eGFR MDRD
+ENDOTHELIN,Endothelin-1 (Plasma pg/mL)
+everSmoker,Indication of whether the participant has ever smoked cigarettes
+FakeCensusTractID,Fake census tract ID
+FastHours,Fasting Time (in hours)
+fastingInsulin,Fasting Insulin (Plasma IU/mL)
+FEV1,Forced Expiratory Volume in 1 Second (L)
+FEV1PP,FEV1 % Predicted
+FEV6,Forced Expiratory Volume in 6 Seconds (L)
+fmlyinc,Family Income Classification
+FPG,Fasting Plasma Glucose Level (mg/dL)
+FPG3cat,Fasting Plasma Glucose Categorization
+FS,Fractional Shortening
+FVC,Forced Vital Capacity (L)
+FVCPP,FVC % Predicted
+glucose3cat,AHA Glucose Categorization
+HbA1c,NGSP Hemoglobin A1c (%)
+HbA1c3cat,NGSP Hemoglobin A1c (%) Categorization
+HbA1cIFCC,IFCC Hemoglobin A1c (mmol/mol)
+HbA1cIFCC3cat,IFCC Hemoglobin A1c (mmol/mol) Categorization
+hdl,Fasting HDL Cholesterol Level (mg/dL)
+hdl3cat,Fasting HDL Categorization
+height,Height (cm)
+HOMA_B,HOMA-B
+HOMA_IR,HOMA-IR
+hrtMeds,Hormone Replacement Therapy Medication Status (Y/N)
+hrtMedsSelf,Self Reported Current HRT Medication Status (Y/N)
+hrtMedsSelfEver,Self Reported HRT Medication Status (Y/N)
+HSCRP,High Sensitivity C-Reactive Protein (Plasma mg/dL)
+HSgrad,High School Graduate
+HTN,Hypertension Status
+hyIndex,Home/Yard Index
+idealHealthBMI,Indicator for Ideal Health via BMI Status
+idealHealthBP,Indicator for Ideal Health via BP Status
+idealHealthChol,Indicator for Ideal Health via Cholesterol Status
+idealHealthDM,Indicator for Ideal Health via Glucose Status
+idealHealthNutrition,Indicator for Ideal Health via Nutrition Status
+idealHealthPA,Indicator for Ideal Health via Physical Activity Status
+idealHealthSMK,Indicator for Ideal Health via Smoking Status
+Income,Income Status
+InsuranceType,Type of Health Insurance
+Insured,Visit 1 Health Insurance Status
+ldl,Fasting LDL Cholesterol Level (mg/dL)
+ldl5cat,Fasting LDL Categorization
+LEPTIN,Concentration of Leptin (Plasma ng/mL)
+LVH,Left Ventricular Hypertrophy
+LVHcv,Cornell Voltage Criteria
+LVMecho,Left Ventricular Mass (g) from Echo
+LVMindex,Left Ventricular Mass Indexed by Height^2.7
+MajorScarAnt,ECG determined Anterior Major Scar
+MajorScarAntLat,ECG determined Anterolateral Major Scar
+MajorScarPost,ECG determined Posterior Major Scar
+male,Male Indicator
+maneuvers,Successful Spirometry Maneuvers
+medAcct,Medication Accountability
+MedicaidIns,Medicaid Insurance Status
+MedicareIns,Medicare Insurance Status
+menopause,Menopause Status
+MIant,ECG determined Anterior MI
+MIAntLat,ECG determined Anterolateral MI
+MIecg,ECG determined MI
+MIHx,Self-Reported History of MI
+MinorScarAnt,ECG determined Anterior Minor Scar
+MinorScarAntLat,ECG determined Anterolateral Minor Scar
+MinorScarPost,ECG determined Posterior Minor Scar
+MIpost,ECG determined Posterior MI
+nbCohesion,Neighborhood Social Cohesion (Age & Sex Adj.)
+nbK3FavorFoodstore,Favorable Food Stores (3 Mile Kernel)
+nbK3paFacilities,Physical Activity Facilities (3 Mile Kernel)
+nbmedHHincome,Median Household Income in Census Tract
+nbpctBlackNH,% Black Non-Hispanic in Census Tract
+nbpctpoverty,% Below Poverty in Census Tract
+nbpctResiden1mi,Percent Residential Land Use per Square Mile
+nbpctWhiteNH,% White Non-Hispanic in Census Tract
+nbPopDensity1mi,Population Density per Square Mile
+nbProblems,Neighborhood Problems (Age & Sex Adj.)
+nbSESanascore,Census Tract SES Score (Diez-Roux 1990)
+nbSESpc2score,Census Tract SES Score (PC2)
+nbViolence,Neighborhood Violence (Age & Sex Adj.)
+neck,Neck Circumference (cm)
+numbnessEver,History of Numbness
+nutrition3cat,AHA Nutrition Categorization
+occupation,Occupational Status
+PA3cat,AHA Physical Activity Categorization
+paralysisEver,History of Paralysis
+perceivedStress,Total Global Stress Score
+PrivateIns,Private Insurance Status
+PrivatePublicIns,Public or Private Insurance
+PublicIns,Public Insurance Status
+PublicInsType,Public Insurance Type
+QRS,QRS Interval (msec)
+QT,QT Interval (msec)
+QTcBaz,Bazett Corrected QT Interval (msec)
+QTcFram,Framingham Corrected QT Interval (msec)
+QTcFrid,Fridericia Corrected QT Interval (msec)
+QTcHod,Hodge Corrected QT Interval (msec)
+recruit,JHS Recruitment Type
+reninIRMA,Renin Mass IRMA (pg/mL)
+reninRIA,Renin Activity RIA (Plasma ng/mL/hr)
+RepolarAnt,ECG determined Anterior Repolarization
+RepolarAntLat,ECG determined Anterolateral Repolarization
+RepolarPost,ECG determined Posterior Repolarization
+RWT,Relative Wall Thickness
+sbp,Systolic Blood Pressure (mmHg)
+sCort,Concentration of Cortisol Levels (Plasma ug/dL)
+SCrCC,CC Calibrated Serum Creatinine (mg/dL)
+SCrIDMS,IDMS Traceable Serum Creatinine (mg/dL)
+sex,Participant Sex
+SMK3cat,AHA Smoking Categorization
+speechLossEver,History of Speech Loss
+sportIndex,Sport Index
+statinMeds,Statin Medication Status (Y/N)
+statinMedsSelf,Self-Reported Statin Medication Status (Y/N)
+strokeHx,History of Stroke
+subjid,Participant ID
+SystLVdia,Systolic LV Diameter (mm)
+totchol,Fasting Total Cholesterol (mg/dL)
+totChol3cat,AHA Total Cholesterol Categorization
+trigs,Fasting Triglyceride Level (mg/dL)
+trigs4cat,Fasting Triglyceride Categorization
+VAIns,VA Insurance Status
+visionLossEver,History of Sudden Loss of Vision
+visit,JHS Exam Visit Number
+VisitDate,Date of Visit
+vitaminD2,25(OH) Vitamin D2 (ng/mL)
+vitaminD3,25(OH) Vitamin D3 (ng/mL)
+vitaminD3epimer,ep-25(OH) Vitamin D3 (ng/mL)
+waist,Waist Circumference (cm)
+weight,Weight (kg)
+YearsFromV1,Years from Visit 1
