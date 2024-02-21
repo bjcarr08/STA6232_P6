@@ -33,13 +33,14 @@ editor: source
 
 </head>
 
-
 **This week you will be analyzing data from the Jackson Heart Study (JHS). You can find the data in the Week 1 module on Canvas. For full credit, you must include all code chunks and R output backing up your responses. Remember to set your seed in all problems for reproducibility purposes.**
 
 ```{r}
 library(tidyverse)
 library(kableExtra)
 library(tidymodels)
+library(boot)
+library(tictoc)
 
 JHS <- haven::read_sas("analysis1.sas7bdat")
 VARS <- read.csv("variables.csv")
@@ -79,7 +80,7 @@ JHS_1 <-
 kable(VARS_1, align=c("l","l"))
 ```
 
-## Split
+<!--## Split
 
 ```{r}
 set.seed(6232)
@@ -88,13 +89,14 @@ train_1 <- training(split_1)
 test_1 <- testing(split_1)
 kable(head(train_1), align=c("l",rep("c",5)))
 ```
+-->
 
 ## 1a
 
 **Systolic blood pressure (*sbp*; mmHg) as a function of age (*age*; years), education (*HSgrad*; 0=no, 1=yes), diabetic status (*diab3cat*; 0=non-diabetic, 1=pre-diabetic, 2=diabetic), body mass index (*BMI*, kg/m2), the interaction between diabetic status and age, and the interaction between diabetic status and education.**
 
 ```{r}
-m_1a <- glm(sbp ~ age + HSgrad + diab3cat + BMI + diab3cat:age + diab3cat:HSgrad, data=train_1)
+m_1a <- glm(sbp ~ age + HSgrad + diab3cat + BMI + diab3cat:age + diab3cat:HSgrad, data=JHS_1)
 summary(m_1a)
 ```
 
@@ -103,12 +105,13 @@ summary(m_1a)
 **Systolic blood pressure (*sbp*; mmHg) as a function of age (*age*; years), education (*HSgrad*; 0=no, 1=yes), diabetic status (*diab3cat*; 0=non-diabetic, 1=pre-diabetic, 2=diabetic), body mass index (*bmi*, kg/m2).**
 
 ```{r}
-m_1b <- glm(sbp ~ age + HSgrad + diab3cat + BMI, data=train_1)
+m_1b <- glm(sbp ~ age + HSgrad + diab3cat + BMI, data=JHS_1)
 summary(m_1b)
 ```
 
 ## Results
 
+<!--
 ```{r}
 #| code-summary: "R Code"
 #| code-fold: true
@@ -136,85 +139,496 @@ if(MSE_1a > MSE_1b){
   noquote("MSE is the same for both models.")
 }
 ```
+-->
+
+```{r}
+# Model 1a CV Prediction Error
+set.seed(6232)
+boot::cv.glm(JHS_1, m_1a)$delta
+
+# Model 1b CV Prediction Error
+set.seed(6232)
+boot::cv.glm(JHS_1, m_1b)$delta
+```
+
+**Which model fits better?**
+
+Although Model 1a has lower error, it is not a significant improvement from the more simple model. Therefore, Model 1b (NO interactions) is the best model.
 
 :::
+
+<!--
+6-fold cross-validation prediction error
+cv.glm(JHS_1, m_1a, K=6)$delta
+ 
+# leave-one-out and 11-fold cross-validation prediction error for 
+# the nodal data set.  Since the response is a binary variable an
+# appropriate cost function is
+cost <- function(r, pi = 0) mean(abs(r-pi) > 0.5)
+
+nodal = boot::nodal
+nodal.glm <- glm(r ~ stage+xray+acid, binomial, data = nodal)
+(cv.err <- boot::cv.glm(nodal, nodal.glm, cost, K = nrow(nodal))$delta)
+(cv.11.err <- boot::cv.glm(nodal, nodal.glm, cost, K = 11)$delta)
+-->
 
 </br>
 
 **2. Consider the following model: diabetic status (*Diabetes*; 0=non-diabetic, 1=diabetic) as a function of age (*age*; years), weight (*weight*; kg), hypertension status (*HTN*; 0=normotensive, 1=hypertensive), health status as indicated by high density lipoproteins (*hdl3cat*; 0=poor health, 1=intermediate health, 2=ideal health), the interaction between weight and hypertension status, the interaction between weight and age, and the interaction between weight and health status as indicated by high density lipoproteins.**
 
-```{r}
+::: {.panel-tabset}
 
+## Variables
+
+```{r}
+#| code-summary: "R Code"
+#| code-fold: true
+# Subset Data
+JHS_2 <- 
+  na.omit(select(JHS, Diabetes, age, weight, HTN, hdl3cat)) %>% 
+    mutate(obs = row_number()) %>% 
+    relocate(obs)
+
+# Subset Variables
+VARS_2 <- filter(VARS, VAR %in% c("Diabetes","age","weight","HTN","hdl3cat"))
+
+# Factor Variables
+JHS_2 <- 
+  JHS_2 %>%
+    mutate(Diabetes = factor(Diabetes, 
+                             levels=c(0,1), 
+                             labels=c("Non-Diabetic","Diabetic")),
+           HTN = factor(HTN, 
+                        levels=c(0,1), 
+                        labels=c("Normotensive","Hypertensive")),
+           hdl3cat = factor(hdl3cat,
+                            levels=c(0,1,2),
+                            labels=c("Poor","Interm","Ideal")))
+
+# HTML Table
+kable(VARS_2, align=c("l","l"))
+```
+
+## Model
+
+```{r}
+m_2 <- glm(Diabetes ~ age + weight + HTN + hdl3cat + weight:HTN + weight:age + weight:hdl3cat, 
+            data=JHS_2, 
+            family=binomial(link="logit"))
+
+summary(m_2)
 ```
 
 <!-- You want to time how long each CV below takes. hint: https://rdrr.io/cran/tictoc/man/tic.html -->
 
-**2a. Perform 2-fold cross validation.**
+## 2a
+
+**Perform 2-fold cross validation.**
 
 ```{r}
-
+tic("2-fold CV")
+set.seed(6232)
+(cv2_2 <- cv.glm(JHS_2, m_2, K=2)$delta)
+toc(log=T)
 ```
 
-**2b. Perform 5-fold cross validation.**
+## 2b
+
+**Perform 5-fold cross validation.**
 
 ```{r}
-
+tic("5-fold CV")
+set.seed(6232)
+(cv2_5 <- cv.glm(JHS_2, m_2, K=5)$delta)
+toc(log=T)
 ```
 
-**2c. Perform 10-fold cross validation.**
+## 2c
+
+**Perform 10-fold cross validation.**
 
 ```{r}
-
+tic("10-fold CV")
+set.seed(6232)
+(cv2_10 <- cv.glm(JHS_2, m_2, K=10)$delta)
+toc(log=T)
 ```
 
-**2d. Perform 25-fold cross validation.**
+## 2d
+
+**Perform 25-fold cross validation.**
 
 ```{r}
-
+tic("25-fold CV")
+set.seed(6232)
+(cv2_25 <- cv.glm(JHS_2, m_2, K=25)$delta)
+toc(log=T)
 ```
 
-**2e. Perform 50-fold cross validation.**
+## 2e
+
+**Perform 50-fold cross validation.**
 
 ```{r}
-
+tic("50-fold CV")
+set.seed(6232)
+(cv2_50 <- cv.glm(JHS_2, m_2, K=50)$delta)
+toc(log=T)
 ```
 
-**2f. Perform 100-fold cross validation.**
+## 2f
+
+**Perform 100-fold cross validation.**
 
 ```{r}
-
+tic("100-fold CV")
+set.seed(6232)
+(cv2_100 <- cv.glm(JHS_2, m_2, K=100)$delta)
+toc(log=T)
 ```
 
-**2g. What did you observe, if anything, about the CV values?**
+## 2g
 
-**2h. What did you observe, if anything, about the processing time?**
+**What did you observe, if anything, about the CV values?**
+
+```{r}
+CV_2 <- t(data.frame(cv2_2, cv2_5, cv2_10, cv2_25, cv2_50, cv2_100))
+colnames(CV_2) <- c("Estimated","True")
+CV_2
+```
+
+Error was the lowest at 2-folds, peaked at 10-folds, & somewhat leveled out after that.
+
+## 2h
+
+**What did you observe, if anything, about the processing time?**
+
+```{r}
+log.txt <- tic.log(format=T)
+writeLines(unlist(log.txt))
+```
+
+Each additional fold adds another 0.013 secs. 
+
+## Results
+
+**Which model fits better?**
+
+Model 2a (2-fold cross validation), it uses the least amount of memory and time while also having the lowest error.
+
+:::
+
+</br>
 
 **3. Use 25-fold cross validation to determine which model fits better:**
 
-**3a. Modeling the number of ideal health indicators (use blood pressure (*idealHealthBP*; 1=ideal health, 0=not ideal health), smoking status (*idealHealthSMK*; 1=ideal health, 0=not ideal health), diabetes (*idealHealthDM*; 1=ideal health, 0=not ideal health), diet  (idealHealthNutrition; 1=ideal health, 0=not ideal health), physical activity (*idealHealthPA*; 1=ideal health, 0=not ideal health), obesity  (*idealHealthBMI*; 1=ideal health, 0=not ideal health), and high cholesterol  (*idealHealthChol*; 1=ideal health, 0=not ideal health)) as a function of age (*age*; years), health insurance (*PrivatePublicIns*; 0=uninsured, 1=private insurance only, 2=public insurance only, 3=private and public insurances), education status (*HSgrad*; 0=did not graduate high school, 1=graduated high school), and the interaction between age and health insurance.**
+::: {.panel-tabset}
+
+## Variables
 
 ```{r}
+#| code-summary: "R Code"
+#| code-fold: true
+JHS_3 <- 
+  JHS %>% 
+  mutate(idealHealth = rowSums(select(., starts_with("ideal")), na.rm=F)) %>%
+  select(idealHealth, age, PrivatePublicIns, HSgrad) %>% 
+  na.omit() %>%
+  mutate(obs = row_number()) %>% 
+  relocate(obs)
 
+# Subset Variables
+VARS_3 <- filter(VARS, VAR %in% c("age","PrivatePublicIns","HSgrad"))
+
+# Factor Variables
+JHS_3 <- 
+  JHS_3 %>%
+    mutate(PrivatePublicIns = factor(PrivatePublicIns,
+                                     levels=c(0,1,2,3),
+                                     labels=c("Uninsured","Private ONLY", "Public ONLY", "Private & Public")),
+           HSgrad = factor(HSgrad,
+                           levels=c(0,1),
+                           labels=c("Did Not Graduate HS","Graduated HS")))
+
+# HTML Table
+kable(VARS_3, align=c("l","l"))
 ```
 
-**3b. Modeling the number of ideal health indicators (use blood pressure (*idealHealthBP*; 1=ideal health, 0=not ideal health), smoking status (*idealHealthSMK*; 1=ideal health, 0=not ideal health), diabetes (*idealHealthDM*; 1=ideal health, 0=not ideal health), diet  (idealHealthNutrition; 1=ideal health, 0=not ideal health), physical activity (*idealHealthPA*; 1=ideal health, 0=not ideal health), obesity  (*idealHealthBMI*; 1=ideal health, 0=not ideal health), and high cholesterol  (*idealHealthChol*; 1=ideal health, 0=not ideal health)) as a function of age (*age*; years), health insurance (*PrivatePublicIns*; 0=uninsured, 1=private insurance only, 2=public insurance only, 3=private and public insurances), education status (*HSgrad*; 0=did not graduate high school, 1=graduated high school).**
+## 3a
+
+**Modeling the number of ideal health indicators (use blood pressure (*idealHealthBP*; 1=ideal health, 0=not ideal health), smoking status (*idealHealthSMK*; 1=ideal health, 0=not ideal health), diabetes (*idealHealthDM*; 1=ideal health, 0=not ideal health), diet (idealHealthNutrition; 1=ideal health, 0=not ideal health), physical activity (*idealHealthPA*; 1=ideal health, 0=not ideal health), obesity  (*idealHealthBMI*; 1=ideal health, 0=not ideal health), and high cholesterol  (*idealHealthChol*; 1=ideal health, 0=not ideal health)) as a function of age (*age*; years), health insurance (*PrivatePublicIns*; 0=uninsured, 1=private insurance only, 2=public insurance only, 3=private and public insurances), education status (*HSgrad*; 0=did not graduate high school, 1=graduated high school), and the interaction between age and health insurance.**
 
 ```{r}
+m_3a <- glm(idealHealth ~ age + PrivatePublicIns + HSgrad + age:PrivatePublicIns, 
+            data = JHS_3, 
+            family = "poisson")
 
+summary(m_3a)
+
+tic.clearlog()
+tic("Model 3a (interactions)")
+set.seed(301)
+(cv_3a <- cv.glm(JHS_3, m_3a, K=25)$delta)
+toc(log=T)
 ```
+
+## 3b
+
+**Modeling the number of ideal health indicators (use blood pressure (*idealHealthBP*; 1=ideal health, 0=not ideal health), smoking status (*idealHealthSMK*; 1=ideal health, 0=not ideal health), diabetes (*idealHealthDM*; 1=ideal health, 0=not ideal health), diet  (idealHealthNutrition; 1=ideal health, 0=not ideal health), physical activity (*idealHealthPA*; 1=ideal health, 0=not ideal health), obesity  (*idealHealthBMI*; 1=ideal health, 0=not ideal health), and high cholesterol  (*idealHealthChol*; 1=ideal health, 0=not ideal health)) as a function of age (*age*; years), health insurance (*PrivatePublicIns*; 0=uninsured, 1=private insurance only, 2=public insurance only, 3=private and public insurances), education status (*HSgrad*; 0=did not graduate high school, 1=graduated high school).**
+
+```{r}
+m_3b <- glm(idealHealth ~ age + PrivatePublicIns + HSgrad, 
+            data = JHS_3, 
+            family = "poisson")
+
+summary(m_3b)
+
+tic("Model 3b (NO interactions)")
+set.seed(302)
+(cv_3b <- cv.glm(JHS_3, m_3b, K=25)$delta)
+toc(log=T)
+```
+
+## Results
+
+**What did you observe, if anything, about the CV values?**
+
+```{r}
+CV_3 <- t(data.frame(cv_3a, cv_3b))
+colnames(CV_3) <- c("Estimated","True")
+CV_3
+```
+
+**What did you observe, if anything, about the processing time?**
+
+```{r}
+log.txt <- tic.log(format=T)
+writeLines(unlist(log.txt))
+```
+
+**Which model fits better?**
+
+Model 3b. It takes about the same time to process as Model 3a & also has slightly higher error, but it has nearly half the amount of terms as Model 3a & the small lift in accuracy is not worth the cost.
+
+:::
+
+</br>
 
 **4. Required for graduate students / extra credit for undergraduate students: this is a challenge question! If you cannot figure it out, please document the research you performed when searching for the answer and what you tried in terms of R code. Use leave-one-out cross validation to determine which model is better:**
 
-**4a. Model diabetic status (*diab3cat*; 0=non-diabetic, 1=pre-diabetic, 2=diabetic) as a function of age (*age*; years), weight (*weight*; kg), hypertension (*HTN*; 1=yes, 0=no), high density lipoprotein (*hdl3cat*; 0=poor health, 1=intermediate health, 2=ideal health), the interaction between high density lipoprotein and age, and the interaction between weight and age.**
+::: {.panel-tabset}
+
+## Variables
 
 ```{r}
+#| code-summary: "R Code"
+#| code-fold: true
+# Subset Data
+JHS_4 <- 
+  na.omit(dplyr::select(JHS, diab3cat, age, weight, HTN, hdl3cat)) %>% 
+    mutate(obs = row_number()) %>% 
+    relocate(obs)
 
+# Subset Variables
+VARS_4 <- filter(VARS, VAR %in% c("diab3cat","age","weight","HTN","hdl3cat"))
+
+# Factor Variables
+JHS_4 <- 
+  JHS_4 %>%
+    mutate(diab3cat = factor(diab3cat, 
+                             levels=c(0,1,2), 
+                             labels=c("Non-Diabetic","Pre-Diabetic","Diabetic")),
+           HTN = factor(HTN, 
+                        levels=c(0,1), 
+                        labels=c("Normotensive","Hypertensive")),
+           hdl3cat = factor(hdl3cat,
+                            levels=c(0,1,2),
+                            labels=c("Poor","Interm","Ideal")))
+
+# HTML Table
+kable(VARS_4, align=c("l","l"))
 ```
-
-**4b. Model diabetic status (*diab3cat*; 0=non-diabetic, 1=pre-diabetic, 2=diabetic) as a function of age (*age*; years), weight (*weight*; kg), hypertension (*HTN*; 1=yes, 0=no), and high density lipoprotein (*hdl3cat*; 0=poor health, 1=intermediate health, 2=ideal health).**
 
 ```{r}
-
+### train/test split
+set.seed(400)
+split_4 <- initial_split(JHS_4, strata=diab3cat, prop=0.3)
+train_4 <- training(split_4)
+test_4 <- testing(split_4)
 ```
+
+## 4a
+
+**Model diabetic status (*diab3cat*; 0=non-diabetic, 1=pre-diabetic, 2=diabetic) as a function of age (*age*; years), weight (*weight*; kg), hypertension (*HTN*; 1=yes, 0=no), high density lipoprotein (*hdl3cat*; 0=poor health, 1=intermediate health, 2=ideal health), the interaction between high density lipoprotein and age, and the interaction between weight and age.**
+
+```{r}
+# ### Ordered Logistic Regression
+# set.seed(411)
+# tic()
+# m_4a <- caret::train(diab3cat ~ age + weight + HTN + hdl3cat,
+#         data=train_4,
+#         method="polr",
+#         trControl=caret::trainControl(method="LOOCV"))
+# toc()
+# 
+# test_4 <- test_4 %>% mutate(pred_4a = predict.train(m_4a, test_4a))
+# 
+# xtabs(n ~ pred_4a + diab3cat, data=test_4 %>% count(diab3cat, pred_4a))
+# 
+# test_4 %>%
+#   mutate(decision = ifelse(diab3cat==pred_4a, "Pass", "Fail")) %>%
+#   count(decision) %>%
+#   mutate(pct = paste0(round(100*n/sum(n),0),"%"))
+```
+
+
+
+## 4b
+
+**Model diabetic status (*diab3cat*; 0=non-diabetic, 1=pre-diabetic, 2=diabetic) as a function of age (*age*; years), weight (*weight*; kg), hypertension (*HTN*; 1=yes, 0=no), and high density lipoprotein (*hdl3cat*; 0=poor health, 1=intermediate health, 2=ideal health).**
+
+```{r}
+#| code-summary: "Ordered Logistic Regression - LOOCV"
+#| code-fold: true
+#| results: hold
+set.seed(420)
+tic()
+m_4b <- caret::train(diab3cat ~ age + weight + HTN + hdl3cat,
+        data=train_4,
+        method="polr",
+        trControl=caret::trainControl(method="LOOCV"))
+toc()
+
+m_4b
+
+test_4 <- test_4 %>% mutate(pred_4b = predict.train(m_4b, test_4))
+
+xtabs(n ~ pred_4b + diab3cat, data=test_4 %>% count(diab3cat, pred_4b))
+
+test_4 %>%
+  mutate(decision = ifelse(diab3cat==pred_4b, "Pass", "Fail")) %>%
+  count(decision) %>%
+  mutate(pct = paste0(round(100*n/sum(n),0),"%"))
+```
+
+</br>
+
+**Extra Code**
+
+```{r}
+#| code-summary: "Ordered Logistic Regression (LogLog)"
+#| code-fold: true
+#| results: hold
+tic()
+m_4b_loglog <- MASS::polr(diab3cat~age+weight+HTN+hdl3cat, data=train_4, Hess=T, method="loglog")
+toc()
+
+m_4b_loglog
+
+test_4 <- test_4 %>% mutate(pred_loglog=predict(m_4b_loglog, test_4))
+
+xtabs(n ~ pred_loglog + diab3cat, data=test_4 %>% count(diab3cat, pred_loglog))
+
+test_4 %>%
+  mutate(decision=ifelse(diab3cat==pred_loglog, "Pass", "Fail")) %>%
+  count(decision) %>%
+  mutate(pct=paste0(round(100*n/sum(n),0),"%"))
+```
+
+```{r}
+#| code-summary: "Multinomial Regression (glmnet)"
+#| code-fold: true
+#| results: hold
+m_4b_glmnet_spec <- multinom_reg(penalty=0) %>% set_engine("glmnet")
+
+tic()
+set.seed(421)
+m_4b_glmnet <- m_4b_glmnet_spec %>% fit(diab3cat ~ age + weight + HTN + hdl3cat, data=train_4)
+toc()
+
+m_4b_glmnet
+
+test_4 <- test_4 %>% mutate(pred_glmnet=predict(m_4b_glmnet, test_4)$.pred_class)
+
+xtabs(n ~ pred_glmnet + diab3cat, data=test_4 %>% count(diab3cat, pred_glmnet))
+
+test_4 %>%
+   mutate(decision = ifelse(diab3cat==pred_glmnet, "Pass", "Fail")) %>%
+   count(decision) %>%
+   mutate(pct = paste0(round(100*n/sum(n),0),"%"))
+```
+
+```{r}
+#| code-summary: "CART or Ordinal Responses"
+#| code-fold: true
+#| results: hold
+# tic()
+# m_4b_rpart <-train(diab3cat ~ age + weight + HTN + hdl3cat,
+#         data=train_4,
+#         method="rpartScore",
+#         trControl=trainControl(method="LOOCV"))
+# toc()
+# 
+# test_4 <- test_4 %>% mutate(pred_rpart = predict.train(m_4b_rpart, test_4))
+# 
+# xtabs(n ~ pred_rpart + diab3cat, data=test_4 %>% count(diab3cat, pred_rpart))
+# 
+# test_4 %>%
+#   mutate(decision = ifelse(diab3cat==pred_rpart, "Pass", "Fail")) %>%
+#   count(decision) %>%
+#   mutate(pct = paste0(round(100*n/sum(n),0),"%"))
+```
+
+```{r}
+#| code-summary: "Neural Network"
+#| code-fold: true
+#| results: hold
+# set.seed(422)
+# tic()
+# m_4b_nnet <-train(diab3cat ~ age + weight + HTN + hdl3cat,
+#         data=train_4,
+#         method="nnet",
+#         trControl=trainControl(method="LOOCV"))
+# toc()
+# 
+# test_4 <- test_4 %>% mutate(pred_nnet = predict.train(m_4b_nnet, test_4))
+# 
+# xtabs(n ~ pred_nnet + diab3cat, data=test_4 %>% count(diab3cat, pred_nnet))
+# 
+# test_4 %>%
+#   mutate(decision = ifelse(diab3cat==pred_nnet, "Pass", "Fail")) %>%
+#   count(decision) %>%
+#   mutate(pct = paste0(round(100*n/sum(n),0),"%"))
+```
+
+```{r}
+#| code-summary: "Penalized Multinomial Regression"
+#| code-fold: true
+#| results: hold
+# set.seed(423)
+# tic()
+# m_4b_multinom <- train(diab3cat ~ age + weight + HTN + hdl3cat, 
+#                        data=train_4,
+#                        method="multinom",
+#                        trControl=trainControl(method="LOOCV"))
+# toc()
+# 
+# test_4 <- test_4 %>% mutate(pred_multinom = predict.train(m_4b_multinom, test_4))
+# 
+# xtabs(n ~ pred_multinom + diab3cat, data=test_4 %>% count(diab3cat, pred_multinom))
+# 
+# test_4 %>%
+#   mutate(decision = ifelse(diab3cat==pred_multinom, "Pass", "Fail")) %>%
+#   count(decision) %>%
+#   mutate(pct = paste0(round(100*n/sum(n),0),"%"))
+```
+
+:::
+
+</br>
 
 **5. Required for graduate students / extra credit for undergraduate students: Pick the results from either Q1 or Q3 to write a summary paragraph for. This paragraph should outline the methodology + results and be readable for your supervisor (not a statistician or data scientist).**
+
+Both models were fit using general linear regression to predict systolic blood pressure (sbp) based on a persons age, education (HSgrad), diabetic status (diab3cat), and body mass index (BMI). Model 1 included two additional interaction terms: diabetic status + age and diabetic status + education. Model 2 did not include any interaction terms. Age, BMI, and diabetic status were all shown to have a significant relationship with sbp in both Models. Additionally, one of Model 1's interaction terms, age and diabetic status, was also shown to have a significant relationship with sbp. Model validity was evaluated using the leave-one-out cross-validation estimate for the test MSE. Since both models exhibited comparable scores (Model 1 at 213.0039 and Model 2 at 213.6568), Model 2 is preferable since it is more simple.
+
+</br>
